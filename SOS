@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+  <title>🌸 HerWay SOS · Emergency Response System</title>
+  <meta name="description" content="Emergency assistance platform with one-tap SOS, contact management, and location sharing" />
+  <meta name="theme-color" content="#ec4899" />
+  
+  <!-- Tailwind via CDN + custom pink theme -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Production-grade styles with performance optimizations */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      background: linear-gradient(145deg, #fdf2f8 0%, #fce7f3 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+    
+    .glass-pink {
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(244, 114, 182, 0.2);
+      transition: all 0.2s ease;
+    }
+    
+    .glass-pink:hover {
+      background: rgba(255, 255, 255, 0.82);
+      border-color: rgba(244, 114, 182, 0.35);
+    }
+    
+    .sos-shadow {
+      box-shadow: 0 8px 32px rgba(236, 72, 153, 0.35);
+    }
+    
+    .sos-btn {
+      transition: all 0.15s ease;
+      will-change: transform;
+    }
+    
+    .sos-btn:active {
+      transform: scale(0.94);
+    }
+    
+    .sos-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: scale(0.98);
+    }
+    
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.02); }
+    }
+    
+    @keyframes pulse-fast {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    
+    .animate-pulse-slow {
+      animation: pulse-slow 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    .animate-pulse-fast {
+      animation: pulse-fast 0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    .log-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .log-scroll::-webkit-scrollbar-track {
+      background: #fce7f3;
+      border-radius: 8px;
+    }
+    
+    .log-scroll::-webkit-scrollbar-thumb {
+      background: #f472b6;
+      border-radius: 8px;
+    }
+    
+    /* SA flag accent */
+    .sa-accent {
+      background: linear-gradient(135deg, #de3831 0%, #de3831 33%, #f5b342 33%, #f5b342 66%, #007a4b 66%, #007a4b 100%);
+      height: 3px;
+      width: 100%;
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+    
+    /* Focus styles for accessibility */
+    button:focus-visible,
+    a:focus-visible {
+      outline: 3px solid #ec4899;
+      outline-offset: 2px;
+    }
+    
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #1f2937;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 9999;
+      max-width: 90vw;
+    }
+    
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .toast.success { background: #059669; }
+    .toast.error { background: #dc2626; }
+    .toast.warning { background: #d97706; }
+    
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.6s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Print styles */
+    @media print {
+      .no-print { display: none !important; }
+      .glass-pink { background: white !important; backdrop-filter: none !important; }
+    }
+    
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: linear-gradient(145deg, #1a0f14 0%, #2d1b24 100%);
+      }
+      .glass-pink {
+        background: rgba(30, 20, 25, 0.85);
+        border-color: rgba(244, 114, 182, 0.15);
+      }
+      .glass-pink:hover {
+        background: rgba(40, 30, 35, 0.9);
+      }
+      .text-pink-700 { color: #f472b6 !important; }
+      .text-pink-600 { color: #ec4899 !important; }
+      .text-pink-500 { color: #db2777 !important; }
+      .text-pink-400 { color: #be185d !important; }
+      .bg-pink-50 { background: rgba(236, 72, 153, 0.1) !important; }
+      .bg-pink-100 { background: rgba(236, 72, 153, 0.15) !important; }
+      .border-pink-200 { border-color: rgba(244, 114, 182, 0.2) !important; }
+      .border-pink-100 { border-color: rgba(244, 114, 182, 0.1) !important; }
+      .bg-white { background: rgba(30, 20, 25, 0.6) !important; }
+      .bg-white\/70 { background: rgba(30, 20, 25, 0.7) !important; }
+      .bg-white\/80 { background: rgba(30, 20, 25, 0.8) !important; }
+    }
+
+    /* Auth modal overlay */
+    .auth-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 1rem;
+    }
+    .auth-modal.hidden { display: none; }
+    .auth-card {
+      max-width: 420px;
+      width: 100%;
+      background: white;
+      border-radius: 2rem;
+      padding: 2rem 1.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    @media (prefers-color-scheme: dark) {
+      .auth-card { background: #1f1a1e; }
+    }
+    .auth-card input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 9999px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      font-size: 1rem;
+    }
+    .auth-card input:focus {
+      outline: 2px solid #ec4899;
+      border-color: transparent;
+    }
+    .auth-card .btn-primary {
+      width: 100%;
+      padding: 0.75rem;
+      background: #ec4899;
+      color: white;
+      border-radius: 9999px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .auth-card .btn-primary:hover { background: #db2777; }
+    .auth-card .btn-secondary {
+      background: transparent;
+      color: #ec4899;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+    }
+    .auth-card .btn-secondary:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<!-- ======== AUTH MODAL ======== -->
+<div id="authModal" class="auth-modal">
+  <div class="auth-card">
+    <div class="text-center mb-6">
+      <span class="text-4xl">🌸</span>
+      <h2 id="authTitle" class="text-2xl font-bold text-pink-700 mt-1">Welcome to HerWay SOS</h2>
+      <p id="authSubtitle" class="text-sm text-pink-400">Sign in to your account</p>
+    </div>
+
+    <form id="authForm" autocomplete="off">
+      <div id="nameField" class="mb-3 hidden">
+        <input type="text" id="authName" placeholder="Full Name" />
+      </div>
+      <div class="mb-3">
+        <input type="email" id="authEmail" placeholder="Email address" required />
+      </div>
+      <div class="mb-4">
+        <input type="password" id="authPassword" placeholder="Password (min 6 chars)" required minlength="6" />
+      </div>
+      <button type="submit" id="authSubmitBtn" class="btn-primary">Sign In</button>
+    </form>
+
+    <div class="mt-4 text-center text-sm">
+      <span id="authToggleText" class="text-gray-500">Don't have an account?</span>
+      <button id="authToggleBtn" class="btn-secondary">Create one</button>
+    </div>
+    <div id="authError" class="mt-3 text-red-500 text-sm text-center hidden"></div>
+  </div>
+</div>
+
+<!-- ======== MAIN APP ======== -->
+<div id="appRoot" class="max-w-4xl mx-auto px-4 py-6 md:py-10 min-h-screen hidden">
+  
+  <!-- Toast notification -->
+  <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+  <!-- Header -->
+  <header class="flex flex-wrap justify-between items-center mb-4 gap-2">
+    <div>
+      <h1 class="text-3xl md:text-4xl font-bold text-pink-700 tracking-tight flex items-center gap-2">
+        <span class="text-4xl" aria-hidden="true">🌸</span> HerWay SOS
+        <span class="text-sm font-normal text-pink-400 ml-1" aria-label="South Africa">🇿🇦</span>
+      </h1>
+      <div class="sa-accent" aria-hidden="true"></div>
+    </div>
+    <div class="flex items-center gap-3 text-sm flex-wrap">
+      <span id="userDisplay" class="bg-white/70 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm text-pink-600 border border-pink-200 flex items-center gap-1">
+        👤 <span id="userNameDisplay">User</span>
+      </span>
+      <span id="batteryDisplay" class="bg-white/70 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm text-pink-600 border border-pink-200 flex items-center gap-1">
+        <span aria-hidden="true">🔋</span> <span id="batteryLevel">--</span>%
+      </span>
+      <span id="silentBadge" class="bg-white/70 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm text-pink-600 border border-pink-200 flex items-center gap-1">
+        <span aria-hidden="true">🔊</span> Audible
+      </span>
+      <span id="connectionStatus" class="bg-white/70 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm text-green-600 border border-green-200 flex items-center gap-1 text-xs">
+        <span aria-hidden="true">●</span> <span id="connectionText">Online</span>
+      </span>
+      <button id="logoutBtn" class="text-xs text-pink-400 hover:text-pink-600 underline">Logout</button>
+    </div>
+  </header>
+
+  <!-- SOS Button -->
+  <div class="relative flex flex-col items-center mb-8">
+    <div id="sosContainer" class="flex flex-col items-center gap-3">
+      <div id="sosButtonArea" class="flex flex-col items-center">
+        <button 
+          id="sosMainBtn" 
+          class="w-48 h-48 rounded-full sos-shadow bg-gradient-to-br from-pink-400 to-rose-500 text-white font-bold text-3xl flex items-center justify-center border-4 border-pink-200 sos-btn"
+          aria-label="Emergency SOS button - tap to send alert"
+        >
+          🚨 SOS
+        </button>
+        <p id="sosStatus" class="mt-2 text-pink-500 text-sm font-medium">Tap to send SOS (5s countdown)</p>
+      </div>
+      <div id="countdownArea" class="hidden flex-col items-center gap-2">
+        <div id="countdownNumber" class="text-6xl font-bold text-pink-600 animate-pulse-slow" aria-live="polite">5</div>
+        <p class="text-pink-500 font-medium">SOS in ... press Cancel to stop</p>
+        <button 
+          id="cancelSosBtn" 
+          class="mt-1 px-8 py-2 bg-white border-2 border-pink-300 text-pink-600 rounded-full shadow-md hover:bg-pink-50 transition font-semibold"
+          aria-label="Cancel SOS alert"
+        >
+          Cancel SOS
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Control toggles -->
+  <div class="flex flex-wrap gap-3 justify-center mb-6 no-print">
+    <button 
+      id="toggleSilent" 
+      class="px-5 py-2 rounded-full shadow-sm border transition font-medium bg-white text-pink-600 border-pink-300 hover:bg-pink-50"
+      aria-label="Toggle silent mode"
+    >
+      🔊 Silent OFF
+    </button>
+    <button 
+      id="toggleLocation" 
+      class="px-5 py-2 rounded-full shadow-sm border transition font-medium bg-white text-pink-600 border-pink-300 hover:bg-pink-50"
+      aria-label="Toggle location sharing"
+    >
+      📍 Sharing OFF
+    </button>
+    <button 
+      id="medicalInfoBtn" 
+      class="px-5 py-2 rounded-full shadow-sm border bg-white text-pink-600 border-pink-300 hover:bg-pink-50 transition font-medium"
+      aria-label="View medical information"
+    >
+      🏥 Medical Info
+    </button>
+  </div>
+
+  <!-- Two column grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Left column -->
+    <div class="space-y-4">
+      <!-- Contacts -->
+      <section class="glass-pink rounded-2xl shadow-lg p-5" aria-label="Emergency contacts">
+        <h2 class="text-xl font-semibold text-pink-700 mb-3 flex items-center gap-2">
+          <span aria-hidden="true">👤</span> Emergency Contacts
+          <span class="text-xs text-pink-400 font-normal ml-1">(SA)</span>
+        </h2>
+        <ul id="contactList" class="space-y-2" role="list">
+          <!-- injected by js -->
+        </ul>
+        <button 
+          id="addContactBtn" 
+          class="mt-3 text-sm text-pink-500 hover:text-pink-700 font-medium flex items-center gap-1"
+          aria-label="Add new emergency contact"
+        >
+          + Add Contact
+        </button>
+        <button 
+          id="editContactBtn" 
+          class="mt-2 ml-3 text-sm text-pink-400 hover:text-pink-600 font-medium flex items-center gap-1"
+          aria-label="Edit existing emergency contact"
+        >
+          ✏️ Edit Contact
+        </button>
+      </section>
+
+      <!-- Emergency card -->
+      <section class="glass-pink rounded-2xl shadow-lg p-5" aria-label="Medical emergency card">
+        <h2 class="text-xl font-semibold text-pink-700 mb-3 flex items-center gap-2">
+          <span aria-hidden="true">🆘</span> Emergency Card
+          <button 
+            id="editMedicalBtn" 
+            class="ml-auto text-xs text-pink-400 hover:text-pink-600 font-medium"
+            aria-label="Edit medical information"
+          >
+            ✏️ Edit
+          </button>
+        </h2>
+        <div id="emergencyCardGrid" class="grid grid-cols-2 gap-2 text-sm">
+          <!-- injected -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Right column -->
+    <div class="space-y-4">
+      <!-- Location -->
+      <section class="glass-pink rounded-2xl shadow-lg p-5" aria-label="Live location">
+        <h2 class="text-xl font-semibold text-pink-700 mb-2 flex items-center gap-2">
+          <span aria-hidden="true">📍</span> Live Location
+        </h2>
+        <p id="locationDisplay" class="text-pink-600 font-mono text-sm bg-pink-50 p-2 rounded-lg border border-pink-100 min-h-[40px] break-all">
+          Location sharing paused
+        </p>
+        <p id="locationStatus" class="text-xs text-pink-400 mt-1">⏸️ Paused</p>
+      </section>
+
+      <!-- Alert log -->
+      <section class="glass-pink rounded-2xl shadow-lg p-5" aria-label="Alert log">
+        <h2 class="text-xl font-semibold text-pink-700 mb-2 flex items-center gap-2">
+          <span aria-hidden="true">📋</span> Alert Log
+        </h2>
+        <div 
+          id="alertLog" 
+          class="log-scroll max-h-48 overflow-y-auto space-y-1 text-xs font-mono bg-pink-50/70 p-2 rounded-lg border border-pink-100"
+          role="log"
+          aria-live="polite"
+        >
+          <p class="text-pink-300 italic">No alerts yet</p>
+        </div>
+        <button 
+          id="clearLogBtn" 
+          class="mt-2 text-xs text-pink-400 hover:text-pink-600"
+          aria-label="Clear alert log"
+        >
+          Clear log
+        </button>
+      </section>
+    </div>
+  </div>
+
+  <!-- Emergency services directory -->
+  <section class="mt-8 glass-pink rounded-2xl shadow-lg p-5 no-print" aria-label="Emergency services directory">
+    <h2 class="text-xl font-semibold text-pink-700 mb-3 flex items-center gap-2">
+      <span aria-hidden="true">📞</span> Emergency Services Directory 
+      <span class="text-sm font-normal text-pink-400">🇿🇦 South Africa</span>
+    </h2>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+      <div class="bg-pink-100/60 p-3 rounded-xl">
+        <p class="font-bold text-pink-700 text-lg">10111</p>
+        <p class="text-xs text-pink-500">Police (SAPS)</p>
+      </div>
+      <div class="bg-pink-100/60 p-3 rounded-xl">
+        <p class="font-bold text-pink-700 text-lg">10177</p>
+        <p class="text-xs text-pink-500">Ambulance</p>
+      </div>
+      <div class="bg-pink-100/60 p-3 rounded-xl">
+        <p class="font-bold text-pink-700 text-lg">112</p>
+        <p class="text-xs text-pink-500">Cellphone Emergency</p>
+      </div>
+      <div class="bg-pink-100/60 p-3 rounded-xl">
+        <p class="font-bold text-pink-700 text-lg">0861 322 322</p>
+        <p class="text-xs text-pink-500">Gender-Based Violence</p>
+      </div>
+    </div>
+    <div class="mt-2 text-xs text-pink-400 text-center italic">* All emergency numbers are for South Africa</div>
+  </section>
+
+  <footer class="text-center text-pink-400 text-xs mt-6 opacity-60">
+    <p>🌸 HerWay SOS v3.0 · Emergency assistance platform · All contacts & alerts are simulated for demo.</p>
+  </footer>
+</div>
+
+<script>
+  (function() {
+    "use strict";
+
+    // ============================================================
+    // AUTH + BACKEND SIMULATION (JWT, per-user data, SMS/Email)
+    // ============================================================
+    // In production, replace with real backend calls.
+    // This simulates a REST API with JWT tokens and user-specific storage.
+    // ============================================================
+
+    // ---- Backend Database (localStorage) ----
+    const DB = {
+      _data: null,
+
+      init() {
+        try {
+          const raw = localStorage.getItem('herway_sos_db_v3');
+          if (raw) {
+            this._data = JSON.parse(raw);
+          } else {
+            this._data = { users: {} };
+            this.persist();
+          }
+        } catch (e) {
+          this._data = { users: {} };
+          this.persist();
+        }
+      },
+
+      persist() {
+        try {
+          localStorage.setItem('herway_sos_db_v3', JSON.stringify(this._data));
+        } catch (e) { /* ignore */ }
+      },
+
+      // Get user data by email
+      getUser(email) {
+        return this._data.users[email] || null;
+      },
+
+      // Create user
+      createUser(email, password, name) {
+        if (this._data.users[email]) return null;
+        this._data.users[email] = {
+          password: password, // In production: hash with bcrypt
+          name: name || email.split('@')[0],
+          contacts: [],
+          emergencyInfo: { bloodType: '', allergies: [], medications: [], conditions: [] },
+          alertLog: []
+        };
+        this.persist();
+        return this._data.users[email];
+      },
+
+      // Update user data
+      updateUser(email, data) {
+        if (!this._data.users[email]) return null;
+        this._data.users[email] = { ...this._data.users[email], ...data };
+        this.persist();
+        return this._data.users[email];
+      },
+
+      // Get full user state
+      getUserState(email) {
+        const user = this.getUser(email);
+        if (!user) return null;
+        const { password, ...safe } = user;
+        return safe;
+      }
+    };
+    DB.init();
+
+    // ---- JWT Simulator (production: use jsonwebtoken) ----
+    const JWT = {
+      secret: 'herway-sos-secret-key-2026',
+
+      sign(payload, expiresIn = '7d') {
+        // Simple base64 encode (not secure, but simulates JWT)
+        const data = { ...payload, exp: Date.now() + 7 * 24 * 60 * 60 * 1000 };
+        return btoa(JSON.stringify(data));
+      },
+
+      verify(token) {
+        try {
+          const data = JSON.parse(atob(token));
+          if (data.exp && data.exp < Date.now()) return null;
+          return data;
+        } catch (e) { return null; }
+      }
+    };
+
+    // ---- API Client ----
+    const API = {
+      _token: null,
+      _currentUser: null,
+
+      setToken(token) {
+        this._token = token;
+        if (token) {
+          const payload = JWT.verify(token);
+          if (payload) this._currentUser = payload.email;
+        } else {
+          this._currentUser = null;
+        }
+      },
+
+      getToken() { return this._token; },
+      getCurrentUser() { return this._currentUser; },
+
+      // Simulate network delay
+      _delay(ms = 150) { return new Promise(r => setTimeout(r, ms)); },
+
+      // ---- Auth endpoints ----
+      async register(email, password, name) {
+        await this._delay(200);
+        const existing = DB.getUser(email);
+        if (existing) throw new Error('User already exists');
+        const user = DB.createUser(email, password, name);
+        if (!user) throw new Error('Registration failed');
+        // Auto-login after register
+        const token = JWT.sign({ email });
+        this.setToken(token);
+        return { token, user: { email, name: user.name } };
+      },
+
+      async login(email, password) {
+        await this._delay(200);
+        const user = DB.getUser(email);
+        if (!user) throw new Error('Invalid credentials');
+        if (user.password !== password) throw new Error('Invalid credentials');
+        const token = JWT.sign({ email });
+        this.setToken(token);
+        return { token, user: { email, name: user.name } };
+      },
+
+      async logout() {
+        this.setToken(null);
+        return { success: true };
+      },
+
+      // ---- Protected endpoints (require token) ----
+      _ensureAuth() {
+        if (!this._token || !this._currentUser) {
+          throw new Error('Unauthorized');
+        }
+        const payload = JWT.verify(this._token);
+        if (!payload || payload.email !== this._currentUser) {
+          throw new Error('Invalid session');
+        }
+        return this._currentUser;
+      },
+
+      async getState() {
+        const email = this._ensureAuth();
+        await this._delay(100);
+        const state = DB.getUserState(email);
+        if (!state) throw new Error('User not found');
+        return state;
+      },
+
+      async updateContacts(contacts) {
+        const email = this._ensureAuth();
+        await this._delay(100);
+        const updated = DB.updateUser(email, { contacts });
+        if (!updated) throw new Error('Update failed');
+        const { password, ...safe } = updated;
+        return safe;
+      },
+
+      async updateEmergencyInfo(emergencyInfo) {
+        const email = this._ensureAuth();
+        await this._delay(100);
+        const updated = DB.updateUser(email, { emergencyInfo });
+        if (!updated) throw new Error('Update failed');
+        const { password, ...safe } = updated;
+        return safe;
+      },
+
+      async addLog(message) {
+        const email = this._ensureAuth();
+        await this._delay(80);
+        const user = DB.getUser(email);
+        if (!user) throw new Error('User not found');
+        const timestamp = new Date().toLocaleTimeString('en-ZA', { hour12: false });
+        const entry = `[${timestamp}] ${message}`;
+        user.alertLog = [entry, ...(user.alertLog || [])].slice(0, 50);
+        DB.persist();
+        const { password, ...safe } = user;
+        return safe;
+      },
+
+      async clearLog() {
+        const email = this._ensureAuth();
+        await this._delay(80);
+        const user = DB.getUser(email);
+        if (!user) throw new Error('User not found');
+        user.alertLog = [];
+        DB.persist();
+        const { password, ...safe } = user;
+        return safe;
+      },
+
+      async sendSOS(silent, location, battery) {
+        const email = this._ensureAuth();
+        await this._delay(150);
+        const user = DB.getUser(email);
+        if (!user) throw new Error('User not found');
+        const timestamp = new Date().toLocaleTimeString('en-ZA', { hour12: false });
+        const alertType = silent ? '🔇 SILENT SOS' : '🚨 SOS ALERT';
+        const msg = `${alertType} at ${timestamp} | ${location} | Battery: ${battery}`;
+        user.alertLog = [msg, ...(user.alertLog || [])].slice(0, 50);
+        // Log per contact
+        (user.contacts || []).forEach(c => {
+          user.alertLog = [`  → Alert sent to ${c.name} (${c.phone})`, ...(user.alertLog || [])].slice(0, 50);
+        });
+        // Medical info
+        const info = user.emergencyInfo || {};
+        const parts = [];
+        if (info.bloodType) parts.push(`🩸 Blood: ${info.bloodType}`);
+        if (info.allergies?.length) parts.push(`⚠️ Allergies: ${info.allergies.join(', ')}`);
+        if (info.medications?.length) parts.push(`💊 Medications: ${info.medications.join(', ')}`);
+        if (info.conditions?.length) parts.push(`🏥 Conditions: ${info.conditions.join(', ')}`);
+        if (parts.length) {
+          user.alertLog = [`  ℹ️ ${parts.join(' | ')}`, ...(user.alertLog || [])].slice(0, 50);
+        } else {
+          user.alertLog = [`  ℹ️ No medical info provided`, ...(user.alertLog || [])].slice(0, 50);
+        }
+        DB.persist();
+
+        // ---- SIMULATED SMS/EMAIL INTEGRATION ----
+        // In production: integrate Twilio, SendGrid, etc.
+        try {
+          // Simulate sending SMS to contacts
+          const contacts = user.contacts || [];
+          for (const contact of contacts) {
+            console.log(`📱 [SMS] To: ${contact.phone} | Message: SOS from ${user.name} at ${location}`);
+            // Example: await twilioClient.messages.create({ body: `SOS from ${user.name}`, to: contact.phone, from: '+1234567890' });
+          }
+          // Simulate email to primary contact
+          if (contacts.length > 0) {
+            console.log(`📧 [Email] To: ${contacts[0].email} | Subject: SOS Alert from ${user.name}`);
+            // Example: await sendGrid.send({ to: contacts[0].email, subject: 'SOS Alert', text: '...' });
+          }
+        } catch (err) {
+          console.warn('SMS/Email simulation error:', err);
+        }
+
+        const { password, ...safe } = user;
+        return safe;
+      }
+    };
+
+    // ============================================================
+    // APPLICATION STATE
+    // ============================================================
+    let contacts = [];
+    let emergencyInfo = { bloodType: '', allergies: [], medications: [], conditions: [] };
+    let alertLog = [];
+    let currentUser = null;
+
+    let isSilent = false;
+    let isLocationSharing = false;
+    let locationText = 'Location sharing paused';
+    let batteryLevel = null;
+    let isOnline = true;
+    let sosActive = false;
+    let countdown = 0;
+    let countdownInterval = null;
+    let watchId = null;
+
+    // ============================================================
+    // DOM REFS
+    // ============================================================
+    const $ = (id) => document.getElementById(id);
+    const appRoot = $('appRoot');
+    const authModal = $('authModal');
+    const authTitle = $('authTitle');
+    const authSubtitle = $('authSubtitle');
+    const authForm = $('authForm');
+    const authEmail = $('authEmail');
+    const authPassword = $('authPassword');
+    const authName = $('authName');
+    const nameField = $('nameField');
+    const authSubmitBtn = $('authSubmitBtn');
+    const authToggleBtn = $('authToggleBtn');
+    const authToggleText = $('authToggleText');
+    const authError = $('authError');
+    const userNameDisplay = $('userNameDisplay');
+
+    const sosMainBtn = $('sosMainBtn');
+    const sosStatus = $('sosStatus');
+    const countdownArea = $('countdownArea');
+    const countdownNumber = $('countdownNumber');
+    const cancelSosBtn = $('cancelSosBtn');
+    const toggleSilentBtn = $('toggleSilent');
+    const toggleLocationBtn = $('toggleLocation');
+    const medicalInfoBtn = $('medicalInfoBtn');
+    const locationDisplay = $('locationDisplay');
+    const locationStatus = $('locationStatus');
+    const alertLogContainer = $('alertLog');
+    const clearLogBtn = $('clearLogBtn');
+    const contactList = $('contactList');
+    const emergencyCardGrid = $('emergencyCardGrid');
+    const silentBadge = $('silentBadge');
+    const batteryLevelSpan = $('batteryLevel');
+    const connectionText = $('connectionText');
+    const connectionStatus = $('connectionStatus');
+    const toast = $('toast');
+    const logoutBtn = $('logoutBtn');
+
+    // ============================================================
+    // TOAST
+    // ============================================================
+    let toastTimeout = null;
+    function showToast(message, type = 'info', duration = 4000) {
+      if (toastTimeout) { clearTimeout(toastTimeout); toast.classList.remove('show'); }
+      toast.textContent = message;
+      toast.className = 'toast';
+      if (type === 'success') toast.classList.add('success');
+      else if (type === 'error') toast.classList.add('error');
+      else if (type === 'warning') toast.classList.add('warning');
+      void toast.offsetWidth;
+      toast.classList.add('show');
+      toastTimeout = setTimeout(() => { toast.classList.remove('show'); toastTimeout = null; }, duration);
+    }
+
+    // ============================================================
+    // NETWORK / BATTERY
+    // ============================================================
+    function updateConnectionStatus() {
+      isOnline = navigator.onLine;
+      connectionText.textContent = isOnline ? 'Online' : 'Offline';
+      connectionStatus.className = `bg-white/70 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm border flex items-center gap-1 text-xs ${
+        isOnline ? 'text-green-600 border-green-200' : 'text-red-600 border-red-200'
+      }`;
+      if (!isOnline) showToast('⚠️ Offline. SOS alerts will be queued.', 'warning', 5000);
+    }
+    window.addEventListener('online', updateConnectionStatus);
+    window.addEventListener('offline', updateConnectionStatus);
+
+    function updateBattery() {
+      if ('getBattery' in navigator) {
+        navigator.getBattery().then(battery => {
+          batteryLevel = Math.round(battery.level * 100);
+          batteryLevelSpan.textContent = batteryLevel;
+          const handle = () => { batteryLevel = Math.round(battery.level * 100); batteryLevelSpan.textContent = batteryLevel; };
+          battery.addEventListener('levelchange', handle);
+          battery.addEventListener('chargingchange', handle);
+        }).catch(() => { batteryLevel = 87; batteryLevelSpan.textContent = batteryLevel; });
+      } else { batteryLevel = 87; batteryLevelSpan.textContent = batteryLevel; }
+    }
+
+    // ============================================================
+    // LOCATION
+    // ============================================================
+    function startLocationTracking() {
+      if (!navigator.geolocation) {
+        locationText = '⚠️ Geolocation not supported';
+        isLocationSharing = false;
+        updateLocationUI();
+        showToast('❌ Geolocation not supported', 'error');
+        return;
+      }
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => { const { latitude, longitude } = pos.coords; locationText = `📍 ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`; updateLocationUI(); },
+        (err) => { locationText = `⚠️ ${err.message}`; updateLocationUI(); showToast(`Location error: ${err.message}`, 'warning'); },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      );
+    }
+    function stopLocationTracking() { if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null; } locationText = 'Location sharing paused'; updateLocationUI(); }
+
+    // ============================================================
+    // RENDER FUNCTIONS
+    // ============================================================
+    function escapeHtml(text) { if (!text) return ''; const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+
+    function renderContacts() {
+      if (!contacts || contacts.length === 0) {
+        contactList.innerHTML = `<li class="text-pink-400 italic p-2">No contacts added yet</li>`;
+        return;
+      }
+      contactList.innerHTML = contacts.map(c => `
+        <li class="flex items-start gap-3 p-2 rounded-lg bg-pink-50/70 border border-pink-100">
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-pink-800">${escapeHtml(c.name)}</p>
+            <p class="text-xs text-pink-500">${escapeHtml(c.relation)}</p>
+            <p class="text-sm text-pink-600">${escapeHtml(c.phone)}</p>
+            <p class="text-xs text-pink-400 truncate">${escapeHtml(c.email)}</p>
+          </div>
+          <button data-contact-id="${c.id}" class="text-pink-400 hover:text-pink-600 text-xl testCallBtn flex-shrink-0" aria-label="Test call">📞</button>
+        </li>
+      `).join('');
+      document.querySelectorAll('.testCallBtn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const id = parseInt(this.dataset.contactId);
+          const contact = contacts.find(c => c.id === id);
+          if (contact) { apiAddLog(`📞 Test call to ${contact.name}`); showToast(`📞 Simulating call to ${contact.name}`, 'info'); }
+        });
+      });
+    }
+
+    function renderEmergencyCard() {
+      const blood = emergencyInfo.bloodType?.trim() || '—';
+      const allergies = emergencyInfo.allergies?.length ? emergencyInfo.allergies.map(escapeHtml).join(', ') : 'None';
+      const medications = emergencyInfo.medications?.length ? emergencyInfo.medications.map(escapeHtml).join(', ') : 'None';
+      const conditions = emergencyInfo.conditions?.length ? emergencyInfo.conditions.map(escapeHtml).join(', ') : 'None';
+      emergencyCardGrid.innerHTML = `
+        <div class="bg-pink-100/60 p-2 rounded-lg"><span class="text-pink-400 block text-xs">Blood</span><p class="font-bold text-pink-700">${escapeHtml(blood)}</p></div>
+        <div class="bg-pink-100/60 p-2 rounded-lg"><span class="text-pink-400 block text-xs">Allergies</span><p class="font-medium text-pink-700">${escapeHtml(allergies)}</p></div>
+        <div class="bg-pink-100/60 p-2 rounded-lg"><span class="text-pink-400 block text-xs">Medications</span><p class="font-medium text-pink-700">${escapeHtml(medications)}</p></div>
+        <div class="bg-pink-100/60 p-2 rounded-lg"><span class="text-pink-400 block text-xs">Conditions</span><p class="font-medium text-pink-700">${escapeHtml(conditions)}</p></div>
+      `;
+    }
+
+    function renderAlertLog() {
+      if (alertLog.length === 0) { alertLogContainer.innerHTML = `<p class="text-pink-300 italic">No alerts yet</p>`; return; }
+      alertLogContainer.innerHTML = alertLog.map(entry => `<div class="text-pink-700 border-b border-pink-100/50 py-1 break-all">${escapeHtml(entry)}</div>`).join('');
+    }
+
+    // ============================================================
+    // API WRAPPERS (with state sync)
+    // ============================================================
+    async function apiAddLog(message) {
+      try { const data = await API.addLog(message); syncState(data); } catch (e) { console.warn('Log error:', e); }
+    }
+
+    async function syncState(data) {
+      if (data) {
+        contacts = data.contacts || [];
+        emergencyInfo = data.emergencyInfo || { bloodType: '', allergies: [], medications: [], conditions: [] };
+        alertLog = data.alertLog || [];
+        renderContacts();
+        renderEmergencyCard();
+        renderAlertLog();
+      }
+    }
+
+    async function refreshState() {
+      try { const data = await API.getState(); syncState(data); } catch (e) { if (e.message === 'Unauthorized') handleLogout(); }
+    }
+
+    // ============================================================
+    // UI UPDATES
+    // ============================================================
+    function updateSilentUI() {
+      silentBadge.innerHTML = isSilent ? '<span aria-hidden="true">🔇</span> Silent' : '<span aria-hidden="true">🔊</span> Audible';
+      toggleSilentBtn.textContent = isSilent ? '🔇 Silent ON' : '🔊 Silent OFF';
+      toggleSilentBtn.className = `px-5 py-2 rounded-full shadow-sm border transition font-medium ${
+        isSilent ? 'bg-pink-600 text-white border-pink-700 hover:bg-pink-700' : 'bg-white text-pink-600 border-pink-300 hover:bg-pink-50'
+      }`;
+      sosStatus.textContent = isSilent ? '🔇 Silent SOS (no countdown)' : 'Tap to send SOS (5s countdown)';
+    }
+
+    function updateLocationUI() {
+      locationDisplay.textContent = locationText;
+      locationStatus.textContent = isLocationSharing ? '🟢 Sharing active' : '⏸️ Paused';
+      toggleLocationBtn.textContent = isLocationSharing ? '📍 Sharing ON' : '📍 Sharing OFF';
+      toggleLocationBtn.className = `px-5 py-2 rounded-full shadow-sm border transition font-medium ${
+        isLocationSharing ? 'bg-pink-600 text-white border-pink-700 hover:bg-pink-700' : 'bg-white text-pink-600 border-pink-300 hover:bg-pink-50'
+      }`;
+    }
+
+    function resetSOSUI() {
+      sosActive = false; countdown = 0;
+      sosMainBtn.disabled = false;
+      sosMainBtn.classList.remove('hidden');
+      countdownArea.classList.add('hidden');
+      sosStatus.textContent = isSilent ? '🔇 Silent SOS (no countdown)' : 'Tap to send SOS (5s countdown)';
+      if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+    }
+
+    // ============================================================
+    // SOS CORE
+    // ============================================================
+    async function triggerSOS(silent = false) {
+      if (!isOnline) showToast('⚠️ Offline. SOS queued.', 'warning', 5000);
+      const loc = isLocationSharing ? locationText : '📍 Location off';
+      const bat = batteryLevel !== null ? `${batteryLevel}%` : '--%';
+      try {
+        const data = await API.sendSOS(silent, loc, bat);
+        syncState(data);
+        if (!silent && navigator.vibrate) { try { navigator.vibrate([200, 100, 200]); } catch(e) {} }
+        showToast(silent ? '🔇 Silent SOS sent' : '🚨 SOS alert sent!', silent ? 'warning' : 'error', 5000);
+      } catch (err) { showToast('❌ SOS failed: ' + err.message, 'error'); }
+    }
+
+    function startCountdown() {
+      if (!isOnline && !isSilent) showToast('⚠️ Offline. Consider Silent Mode.', 'warning', 4000);
+      if (isSilent) { triggerSOS(true); return; }
+      sosActive = true; countdown = 5;
+      sosMainBtn.disabled = true;
+      sosMainBtn.classList.add('hidden');
+      countdownArea.classList.remove('hidden');
+      countdownNumber.textContent = countdown;
+      sosStatus.textContent = '⏳ Sending SOS...';
+      if (countdownInterval) clearInterval(countdownInterval);
+      countdownInterval = setInterval(() => {
+        countdown -= 1; countdownNumber.textContent = countdown;
+        if (countdown <= 0) { clearInterval(countdownInterval); countdownInterval = null; triggerSOS(false); resetSOSUI(); }
+      }, 1000);
+    }
+
+    function cancelSOS() { if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; } sosActive = false; apiAddLog('SOS cancelled by user'); showToast('SOS cancelled', 'info'); resetSOSUI(); }
+
+    // ============================================================
+    // AUTH HANDLING
+    // ============================================================
+    let isLoginMode = true;
+
+    function showAuthModal(show) {
+      authModal.classList.toggle('hidden', !show);
+      appRoot.classList.toggle('hidden', show);
+    }
+
+    function setAuthMode(login) {
+      isLoginMode = login;
+      if (login) {
+        authTitle.textContent = 'Welcome to HerWay SOS';
+        authSubtitle.textContent = 'Sign in to your account';
+        authSubmitBtn.textContent = 'Sign In';
+        authToggleText.textContent = "Don't have an account?";
+        authToggleBtn.textContent = 'Create one';
+        nameField.classList.add('hidden');
+        authName.value = '';
+      } else {
+        authTitle.textContent = 'Create Account';
+        authSubtitle.textContent = 'Join HerWay SOS emergency network';
+        authSubmitBtn.textContent = 'Sign Up';
+        authToggleText.textContent = 'Already have an account?';
+        authToggleBtn.textContent = 'Sign in';
+        nameField.classList.remove('hidden');
+      }
+      authError.classList.add('hidden');
+      authError.textContent = '';
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      authError.classList.add('hidden');
+      authError.textContent = '';
+      const email = authEmail.value.trim();
+      const password = authPassword.value.trim();
+      if (!email || !password) { showAuthError('Please fill in all fields'); return; }
+      if (password.length < 6) { showAuthError('Password must be at least 6 characters'); return; }
+
+      try {
+        let result;
+        if (isLoginMode) {
+          result = await API.login(email, password);
+        } else {
+          const name = authName.value.trim() || email.split('@')[0];
+          result = await API.register(email, password, name);
+        }
+        currentUser = result.user;
+        userNameDisplay.textContent = currentUser.name || currentUser.email;
+        showAuthModal(false);
+        await refreshState();
+        showToast(`Welcome, ${currentUser.name || 'User'}!`, 'success');
+      } catch (err) {
+        showAuthError(err.message || 'Authentication failed');
+      }
+    }
+
+    function showAuthError(msg) {
+      authError.textContent = msg;
+      authError.classList.remove('hidden');
+    }
+
+    async function handleLogout() {
+      try { await API.logout(); } catch (e) {}
+      currentUser = null;
+      API.setToken(null);
+      showAuthModal(true);
+      setAuthMode(true);
+      appRoot.classList.add('hidden');
+      showToast('Logged out', 'info');
+    }
+
+    function checkSession() {
+      const token = API.getToken();
+      if (token) {
+        const payload = JWT.verify(token);
+        if (payload && payload.email) {
+          API._currentUser = payload.email;
+          const user = DB.getUser(payload.email);
+          if (user) {
+            currentUser = { email: payload.email, name: user.name };
+            userNameDisplay.textContent = user.name || user.email;
+            showAuthModal(false);
+            refreshState();
+            return true;
+          }
+        }
+      }
+      showAuthModal(true);
+      setAuthMode(true);
+      return false;
+    }
+
+    // ============================================================
+    // EVENT LISTENERS
+    // ============================================================
+    // Auth
+    authForm.addEventListener('submit', handleAuthSubmit);
+    authToggleBtn.addEventListener('click', () => setAuthMode(!isLoginMode));
+    logoutBtn.addEventListener('click', handleLogout);
+
+    // SOS
+    sosMainBtn.addEventListener('click', startCountdown);
+    cancelSosBtn.addEventListener('click', cancelSOS);
+
+    // Toggles
+    toggleSilentBtn.addEventListener('click', function() {
+      isSilent = !isSilent; updateSilentUI();
+      apiAddLog(`Silent mode ${isSilent ? 'activated' : 'deactivated'}`);
+      showToast(`Silent mode ${isSilent ? 'activated' : 'deactivated'}`, 'info');
+      if (sosActive) cancelSOS();
+    });
+
+    toggleLocationBtn.addEventListener('click', function() {
+      if (!isOnline) { showToast('Cannot enable location while offline', 'warning'); return; }
+      isLocationSharing = !isLocationSharing;
+      if (isLocationSharing) { startLocationTracking(); showToast('📍 Location sharing enabled', 'success'); }
+      else { stopLocationTracking(); showToast('📍 Location sharing disabled', 'info'); }
+      apiAddLog(`Location sharing ${isLocationSharing ? 'enabled' : 'disabled'}`);
+      updateLocationUI();
+    });
+
+    medicalInfoBtn.addEventListener('click', function() {
+      apiAddLog('📋 Emergency info requested');
+      const info = `🩸 Blood: ${emergencyInfo.bloodType || 'Not provided'}\n` +
+                   `⚠️ Allergies: ${emergencyInfo.allergies?.join(', ') || 'None'}\n` +
+                   `💊 Medications: ${emergencyInfo.medications?.join(', ') || 'None'}\n` +
+                   `🏥 Conditions: ${emergencyInfo.conditions?.join(', ') || 'None'}`;
+      alert(info);
+    });
+
+    clearLogBtn.addEventListener('click', async function() {
+      try { await API.clearLog(); await refreshState(); showToast('Alert log cleared', 'info'); }
+      catch (e) { showToast('Failed to clear log', 'error'); }
+    });
+
+    // Add Contact
+    document.getElementById('addContactBtn').addEventListener('click', async function() {
+      const name = prompt('Enter contact name:');
+      if (!name) return;
+      const phone = prompt('Enter phone number:');
+      if (!phone) return;
+      const email = prompt('Enter email:') || '';
+      const relation = prompt('Enter relation:') || 'Contact';
+      const newContact = { id: Date.now(), name: name.trim(), phone: phone.trim(), email: email.trim(), relation: relation.trim() };
+      try {
+        const updated = [...contacts, newContact];
+        await API.updateContacts(updated);
+        await refreshState();
+        apiAddLog(`📇 Added contact: ${newContact.name}`);
+        showToast(`✅ Contact ${newContact.name} added`, 'success');
+      } catch (e) { showToast('Failed to add contact', 'error'); }
+    });
+
+    // Edit Contact
+    document.getElementById('editContactBtn').addEventListener('click', async function() {
+      if (contacts.length === 0) { showToast('No contacts to edit.', 'warning'); return; }
+      const list = contacts.map((c, i) => `${i+1}. ${c.name} (${c.relation})`).join('\n');
+      const choice = prompt(`Select contact to edit:\n${list}`);
+      if (choice === null) return;
+      const idx = parseInt(choice) - 1;
+      if (isNaN(idx) || idx < 0 || idx >= contacts.length) { showToast('Invalid selection', 'error'); return; }
+      const c = contacts[idx];
+      const n = prompt('Edit name:', c.name); if (n === null) return;
+      const p = prompt('Edit phone:', c.phone); if (p === null) return;
+      const e = prompt('Edit email:', c.email); if (e === null) return;
+      const r = prompt('Edit relation:', c.relation); if (r === null) return;
+      const updated = [...contacts];
+      updated[idx] = { ...c, name: n.trim() || c.name, phone: p.trim() || c.phone, email: e.trim() || c.email, relation: r.trim() || c.relation };
+      try { await API.updateContacts(updated); await refreshState(); apiAddLog(`✏️ Edited contact: ${updated[idx].name}`); showToast('✅ Contact updated', 'success'); }
+      catch (err) { showToast('Failed to update contact', 'error'); }
+    });
+
+    // Edit Medical
+    document.getElementById('editMedicalBtn').addEventListener('click', async function() {
+      const b = prompt('Blood type:', emergencyInfo.bloodType || ''); if (b === null) return;
+      const a = prompt('Allergies (comma separated):', emergencyInfo.allergies?.join(', ') || ''); if (a === null) return;
+      const m = prompt('Medications (comma separated):', emergencyInfo.medications?.join(', ') || ''); if (m === null) return;
+      const c = prompt('Conditions (comma separated):', emergencyInfo.conditions?.join(', ') || ''); if (c === null) return;
+      const newInfo = {
+        bloodType: b.trim() || '',
+        allergies: a.trim() ? a.split(',').map(s => s.trim()).filter(Boolean) : [],
+        medications: m.trim() ? m.split(',').map(s => s.trim()).filter(Boolean) : [],
+        conditions: c.trim() ? c.split(',').map(s => s.trim()).filter(Boolean) : [],
+      };
+      try { await API.updateEmergencyInfo(newInfo); await refreshState(); apiAddLog('🏥 Medical info updated'); showToast('✅ Medical info updated', 'success'); }
+      catch (err) { showToast('Failed to update medical info', 'error'); }
+    });
+
+    // Keyboard support
+    sosMainBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); startCountdown(); } });
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    function init() {
+      updateConnectionStatus();
+      updateBattery();
+      updateSilentUI();
+      updateLocationUI();
+      // Check session and show auth if needed
+      const hasSession = checkSession();
+      if (!hasSession) {
+        showAuthModal(true);
+        setAuthMode(true);
+      }
+      console.log('🌸 HerWay SOS v3.0 initialized with auth, JWT, SMS/Email simulation');
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && isLocationSharing && !watchId) startLocationTracking();
+    });
+
+    window.addEventListener('beforeunload', (e) => {
+      if (sosActive) { e.preventDefault(); e.returnValue = 'SOS in progress. Leave?'; return e.returnValue; }
+    });
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+
+  })();
+</script>
+</body>
+</html>
