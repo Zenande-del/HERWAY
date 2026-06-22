@@ -6,7 +6,7 @@
   <title>🌸 HerWay SOS · Emergency Response System</title>
   <meta name="description" content="Emergency assistance platform with one-tap SOS, contact management, and location sharing" />
   <meta name="theme-color" content="#ec4899" />
-  
+
   <!-- Tailwind via CDN + custom pink theme -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -16,7 +16,7 @@
       margin: 0;
       padding: 0;
     }
-    
+
     body {
       background: linear-gradient(145deg, #fdf2f8 0%, #fce7f3 100%);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -25,7 +25,7 @@
       min-height: 100vh;
       min-height: 100dvh;
     }
-    
+
     .glass-pink {
       background: rgba(255, 255, 255, 0.72);
       backdrop-filter: blur(8px);
@@ -33,63 +33,63 @@
       border: 1px solid rgba(244, 114, 182, 0.2);
       transition: all 0.2s ease;
     }
-    
+
     .glass-pink:hover {
       background: rgba(255, 255, 255, 0.82);
       border-color: rgba(244, 114, 182, 0.35);
     }
-    
+
     .sos-shadow {
       box-shadow: 0 8px 32px rgba(236, 72, 153, 0.35);
     }
-    
+
     .sos-btn {
       transition: all 0.15s ease;
       will-change: transform;
     }
-    
+
     .sos-btn:active {
       transform: scale(0.94);
     }
-    
+
     .sos-btn:disabled {
       opacity: 0.6;
       cursor: not-allowed;
       transform: scale(0.98);
     }
-    
+
     @keyframes pulse-slow {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.7; transform: scale(1.02); }
     }
-    
+
     @keyframes pulse-fast {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.4; }
     }
-    
+
     .animate-pulse-slow {
       animation: pulse-slow 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
-    
+
     .animate-pulse-fast {
       animation: pulse-fast 0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
-    
+
     .log-scroll::-webkit-scrollbar {
       width: 4px;
     }
-    
+
     .log-scroll::-webkit-scrollbar-track {
       background: #fce7f3;
       border-radius: 8px;
     }
-    
+
     .log-scroll::-webkit-scrollbar-thumb {
       background: #f472b6;
       border-radius: 8px;
     }
-    
+
     /* SA flag accent */
     .sa-accent {
       background: linear-gradient(135deg, #de3831 0%, #de3831 33%, #f5b342 33%, #f5b342 66%, #007a4b 66%, #007a4b 100%);
@@ -98,14 +98,14 @@
       border-radius: 4px;
       margin-top: 4px;
     }
-    
+
     /* Focus styles for accessibility */
     button:focus-visible,
     a:focus-visible {
       outline: 3px solid #ec4899;
       outline-offset: 2px;
     }
-    
+
     /* Toast notification */
     .toast {
       position: fixed;
@@ -122,16 +122,16 @@
       z-index: 9999;
       max-width: 90vw;
     }
-    
+
     .toast.show {
       transform: translateY(0);
       opacity: 1;
     }
-    
+
     .toast.success { background: #059669; }
     .toast.error { background: #dc2626; }
     .toast.warning { background: #d97706; }
-    
+
     /* Loading spinner */
     .spinner {
       display: inline-block;
@@ -142,17 +142,17 @@
       border-top-color: #fff;
       animation: spin 0.6s linear infinite;
     }
-    
+
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
-    
+
     /* Print styles */
     @media print {
       .no-print { display: none !important; }
       .glass-pink { background: white !important; backdrop-filter: none !important; }
     }
-    
+
     /* Dark mode support */
     @media (prefers-color-scheme: dark) {
       body {
@@ -222,6 +222,8 @@
       border-radius: 9999px;
       font-weight: 600;
       transition: all 0.2s;
+      border: none;
+      cursor: pointer;
     }
     .auth-card .btn-primary:hover { background: #db2777; }
     .auth-card .btn-secondary {
@@ -232,6 +234,22 @@
       cursor: pointer;
     }
     .auth-card .btn-secondary:hover { text-decoration: underline; }
+
+    /* Forgot password link */
+    .forgot-link {
+      background: transparent;
+      border: none;
+      color: #9ca3af;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-top: 0.25rem;
+      display: inline-block;
+    }
+    .forgot-link:hover { color: #ec4899; }
+
+    /* Reset password form */
+    .reset-form .hidden { display: none; }
   </style>
 </head>
 <body>
@@ -245,6 +263,7 @@
       <p id="authSubtitle" class="text-sm text-pink-400">Sign in to your account</p>
     </div>
 
+    <!-- Login / Register Form -->
     <form id="authForm" autocomplete="off">
       <div id="nameField" class="mb-3 hidden">
         <input type="text" id="authName" placeholder="Full Name" />
@@ -252,10 +271,28 @@
       <div class="mb-3">
         <input type="email" id="authEmail" placeholder="Email address" required />
       </div>
-      <div class="mb-4">
+      <div class="mb-3">
         <input type="password" id="authPassword" placeholder="Password (min 6 chars)" required minlength="6" />
       </div>
-      <button type="submit" id="authSubmitBtn" class="btn-primary">Sign In</button>
+      <div class="flex justify-between items-center mb-4">
+        <button type="submit" id="authSubmitBtn" class="btn-primary flex-1">Sign In</button>
+      </div>
+      <div class="text-center">
+        <button type="button" id="forgotPasswordBtn" class="forgot-link">🔑 Forgot password?</button>
+      </div>
+    </form>
+
+    <!-- Forgot Password Form (hidden by default) -->
+    <form id="forgotPasswordForm" class="reset-form hidden" autocomplete="off">
+      <div class="mb-3">
+        <input type="email" id="resetEmail" placeholder="Enter your email address" required />
+      </div>
+      <button type="submit" id="resetSubmitBtn" class="btn-primary">Send Reset Link</button>
+      <div class="mt-3 text-center">
+        <button type="button" id="backToLoginBtn" class="btn-secondary">← Back to Sign In</button>
+      </div>
+      <div id="resetMessage" class="mt-3 text-sm text-center text-green-600 hidden"></div>
+      <div id="resetError" class="mt-3 text-sm text-center text-red-500 hidden"></div>
     </form>
 
     <div class="mt-4 text-center text-sm">
@@ -268,7 +305,7 @@
 
 <!-- ======== MAIN APP ======== -->
 <div id="appRoot" class="max-w-4xl mx-auto px-4 py-6 md:py-10 min-h-screen hidden">
-  
+
   <!-- Toast notification -->
   <div id="toast" class="toast" role="alert" aria-live="polite"></div>
 
@@ -302,8 +339,8 @@
   <div class="relative flex flex-col items-center mb-8">
     <div id="sosContainer" class="flex flex-col items-center gap-3">
       <div id="sosButtonArea" class="flex flex-col items-center">
-        <button 
-          id="sosMainBtn" 
+        <button
+          id="sosMainBtn"
           class="w-48 h-48 rounded-full sos-shadow bg-gradient-to-br from-pink-400 to-rose-500 text-white font-bold text-3xl flex items-center justify-center border-4 border-pink-200 sos-btn"
           aria-label="Emergency SOS button - tap to send alert"
         >
@@ -314,8 +351,8 @@
       <div id="countdownArea" class="hidden flex-col items-center gap-2">
         <div id="countdownNumber" class="text-6xl font-bold text-pink-600 animate-pulse-slow" aria-live="polite">5</div>
         <p class="text-pink-500 font-medium">SOS in ... press Cancel to stop</p>
-        <button 
-          id="cancelSosBtn" 
+        <button
+          id="cancelSosBtn"
           class="mt-1 px-8 py-2 bg-white border-2 border-pink-300 text-pink-600 rounded-full shadow-md hover:bg-pink-50 transition font-semibold"
           aria-label="Cancel SOS alert"
         >
@@ -327,22 +364,22 @@
 
   <!-- Control toggles -->
   <div class="flex flex-wrap gap-3 justify-center mb-6 no-print">
-    <button 
-      id="toggleSilent" 
+    <button
+      id="toggleSilent"
       class="px-5 py-2 rounded-full shadow-sm border transition font-medium bg-white text-pink-600 border-pink-300 hover:bg-pink-50"
       aria-label="Toggle silent mode"
     >
       🔊 Silent OFF
     </button>
-    <button 
-      id="toggleLocation" 
+    <button
+      id="toggleLocation"
       class="px-5 py-2 rounded-full shadow-sm border transition font-medium bg-white text-pink-600 border-pink-300 hover:bg-pink-50"
       aria-label="Toggle location sharing"
     >
       📍 Sharing OFF
     </button>
-    <button 
-      id="medicalInfoBtn" 
+    <button
+      id="medicalInfoBtn"
       class="px-5 py-2 rounded-full shadow-sm border bg-white text-pink-600 border-pink-300 hover:bg-pink-50 transition font-medium"
       aria-label="View medical information"
     >
@@ -363,15 +400,15 @@
         <ul id="contactList" class="space-y-2" role="list">
           <!-- injected by js -->
         </ul>
-        <button 
-          id="addContactBtn" 
+        <button
+          id="addContactBtn"
           class="mt-3 text-sm text-pink-500 hover:text-pink-700 font-medium flex items-center gap-1"
           aria-label="Add new emergency contact"
         >
           + Add Contact
         </button>
-        <button 
-          id="editContactBtn" 
+        <button
+          id="editContactBtn"
           class="mt-2 ml-3 text-sm text-pink-400 hover:text-pink-600 font-medium flex items-center gap-1"
           aria-label="Edit existing emergency contact"
         >
@@ -383,8 +420,8 @@
       <section class="glass-pink rounded-2xl shadow-lg p-5" aria-label="Medical emergency card">
         <h2 class="text-xl font-semibold text-pink-700 mb-3 flex items-center gap-2">
           <span aria-hidden="true">🆘</span> Emergency Card
-          <button 
-            id="editMedicalBtn" 
+          <button
+            id="editMedicalBtn"
             class="ml-auto text-xs text-pink-400 hover:text-pink-600 font-medium"
             aria-label="Edit medical information"
           >
@@ -415,16 +452,16 @@
         <h2 class="text-xl font-semibold text-pink-700 mb-2 flex items-center gap-2">
           <span aria-hidden="true">📋</span> Alert Log
         </h2>
-        <div 
-          id="alertLog" 
+        <div
+          id="alertLog"
           class="log-scroll max-h-48 overflow-y-auto space-y-1 text-xs font-mono bg-pink-50/70 p-2 rounded-lg border border-pink-100"
           role="log"
           aria-live="polite"
         >
           <p class="text-pink-300 italic">No alerts yet</p>
         </div>
-        <button 
-          id="clearLogBtn" 
+        <button
+          id="clearLogBtn"
           class="mt-2 text-xs text-pink-400 hover:text-pink-600"
           aria-label="Clear alert log"
         >
@@ -437,7 +474,7 @@
   <!-- Emergency services directory -->
   <section class="mt-8 glass-pink rounded-2xl shadow-lg p-5 no-print" aria-label="Emergency services directory">
     <h2 class="text-xl font-semibold text-pink-700 mb-3 flex items-center gap-2">
-      <span aria-hidden="true">📞</span> Emergency Services Directory 
+      <span aria-hidden="true">📞</span> Emergency Services Directory
       <span class="text-sm font-normal text-pink-400">🇿🇦 South Africa</span>
     </h2>
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
@@ -607,6 +644,23 @@
         return { success: true };
       },
 
+      // ---- Forgot Password ----
+      async forgotPassword(email) {
+        await this._delay(300);
+        const user = DB.getUser(email);
+        if (!user) throw new Error('No account found with this email');
+
+        // Simulate sending email with reset link
+        // In production: use SendGrid, AWS SES, etc.
+        console.log(`📧 [EMAIL] To: ${email}`);
+        console.log(`📧 [EMAIL] Subject: Reset your HerWay SOS password`);
+        console.log(`📧 [EMAIL] Body: Click the link to reset your password: https://herway-sos.example.com/reset?email=${encodeURIComponent(email)}&token=${JWT.sign({ email, reset: true }, '1h')}`);
+        console.log(`📧 [EMAIL] (Simulated - check console for reset link)`);
+
+        // Return success without exposing token in response
+        return { success: true };
+      },
+
       // ---- Protected endpoints (require token) ----
       _ensureAuth() {
         if (!this._token || !this._currentUser) {
@@ -755,6 +809,13 @@
     const authToggleText = $('authToggleText');
     const authError = $('authError');
     const userNameDisplay = $('userNameDisplay');
+    const forgotPasswordBtn = $('forgotPasswordBtn');
+    const forgotPasswordForm = $('forgotPasswordForm');
+    const resetEmail = $('resetEmail');
+    const resetSubmitBtn = $('resetSubmitBtn');
+    const backToLoginBtn = $('backToLoginBtn');
+    const resetMessage = $('resetMessage');
+    const resetError = $('resetError');
 
     const sosMainBtn = $('sosMainBtn');
     const sosStatus = $('sosStatus');
@@ -976,6 +1037,7 @@
     // AUTH HANDLING
     // ============================================================
     let isLoginMode = true;
+    let isResetMode = false;
 
     function showAuthModal(show) {
       authModal.classList.toggle('hidden', !show);
@@ -984,6 +1046,9 @@
 
     function setAuthMode(login) {
       isLoginMode = login;
+      isResetMode = false;
+      authForm.classList.remove('hidden');
+      forgotPasswordForm.classList.add('hidden');
       if (login) {
         authTitle.textContent = 'Welcome to HerWay SOS';
         authSubtitle.textContent = 'Sign in to your account';
@@ -992,6 +1057,7 @@
         authToggleBtn.textContent = 'Create one';
         nameField.classList.add('hidden');
         authName.value = '';
+        authPassword.placeholder = 'Password (min 6 chars)';
       } else {
         authTitle.textContent = 'Create Account';
         authSubtitle.textContent = 'Join HerWay SOS emergency network';
@@ -999,9 +1065,23 @@
         authToggleText.textContent = 'Already have an account?';
         authToggleBtn.textContent = 'Sign in';
         nameField.classList.remove('hidden');
+        authPassword.placeholder = 'Password (min 6 chars)';
       }
       authError.classList.add('hidden');
       authError.textContent = '';
+      resetMessage.classList.add('hidden');
+      resetError.classList.add('hidden');
+    }
+
+    function setResetMode() {
+      isResetMode = true;
+      authForm.classList.add('hidden');
+      forgotPasswordForm.classList.remove('hidden');
+      authTitle.textContent = 'Reset Password';
+      authSubtitle.textContent = 'We\'ll email you a reset link';
+      resetMessage.classList.add('hidden');
+      resetError.classList.add('hidden');
+      resetEmail.value = authEmail.value || '';
     }
 
     async function handleAuthSubmit(e) {
@@ -1028,6 +1108,41 @@
         showToast(`Welcome, ${currentUser.name || 'User'}!`, 'success');
       } catch (err) {
         showAuthError(err.message || 'Authentication failed');
+      }
+    }
+
+    async function handleForgotPassword(e) {
+      e.preventDefault();
+      const email = resetEmail.value.trim();
+      if (!email) {
+        resetError.textContent = 'Please enter your email address';
+        resetError.classList.remove('hidden');
+        resetMessage.classList.add('hidden');
+        return;
+      }
+
+      resetError.classList.add('hidden');
+      resetMessage.classList.add('hidden');
+      resetSubmitBtn.disabled = true;
+      resetSubmitBtn.textContent = 'Sending...';
+
+      try {
+        await API.forgotPassword(email);
+        resetMessage.textContent = `✅ Reset link sent to ${email}. Check your email (and spam folder).`;
+        resetMessage.classList.remove('hidden');
+        resetError.classList.add('hidden');
+        resetEmail.value = '';
+        setTimeout(() => {
+          resetSubmitBtn.disabled = false;
+          resetSubmitBtn.textContent = 'Send Reset Link';
+          setAuthMode(true);
+        }, 3000);
+      } catch (err) {
+        resetError.textContent = err.message || 'Failed to send reset link';
+        resetError.classList.remove('hidden');
+        resetMessage.classList.add('hidden');
+        resetSubmitBtn.disabled = false;
+        resetSubmitBtn.textContent = 'Send Reset Link';
       }
     }
 
@@ -1074,6 +1189,11 @@
     authForm.addEventListener('submit', handleAuthSubmit);
     authToggleBtn.addEventListener('click', () => setAuthMode(!isLoginMode));
     logoutBtn.addEventListener('click', handleLogout);
+
+    // Forgot Password
+    forgotPasswordBtn.addEventListener('click', setResetMode);
+    forgotPasswordForm.addEventListener('submit', handleForgotPassword);
+    backToLoginBtn.addEventListener('click', () => setAuthMode(true));
 
     // SOS
     sosMainBtn.addEventListener('click', startCountdown);
@@ -1181,6 +1301,7 @@
         setAuthMode(true);
       }
       console.log('🌸 HerWay SOS v3.0 initialized with auth, JWT, SMS/Email simulation');
+      console.log('📧 Forgot password: email reset link will be shown in console');
     }
 
     document.addEventListener('visibilitychange', () => {
